@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import BodyText from '../components/BodyText';
 import Card from '../components/Card';
 import NumberContainer from '../components/NumberContainer';
 import DefaultStyles from '../constants/default-styles';
@@ -25,6 +26,13 @@ const generateRandomBetween = (min, max, exclude) => {
         return randNum;
     }
 };
+
+const renderListItem = (value, numRound) => (
+    <View style={styles.listItem} key={value}>
+        <BodyText>#{numRound}</BodyText>
+        <BodyText>{value}</BodyText>
+    </View>
+)
 
 const GameScreen = props => {
     const initialGuess = generateRandomBetween(1, 100, props.userChoice);
@@ -78,13 +86,11 @@ const GameScreen = props => {
                     <Ionicons size={24} color="white" name="md-add" />
                 </MainButton>
             </Card>
-            <ScrollView>
-                {pastGuesses.map(guess => (
-                    <View key={guess}>
-                        <Text>{guess}</Text>
-                    </View>
-                ))}    
-            </ScrollView>
+            <View style={styles.list}>
+                <ScrollView>
+                    {pastGuesses.map((guess, index) => renderListItem(guess, pastGuesses.length - index))}    
+                </ScrollView>
+            </View>
         </View>
     )
     
@@ -102,6 +108,19 @@ const styles = StyleSheet.create({
         marginTop: 20,
         width: 400,
         maxWidth: '90%'
+    },
+    list: {
+        width: '80%',
+        flex: 1
+    },
+    listItem: {
+        borderColor: '#ccc',
+        marginVertical: 10,
+        padding: 15,
+        backgroundColor: 'white',
+        borderWidth: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-around'
     }
 });
 
