@@ -16,8 +16,6 @@ import NumberContainer from '../components/NumberContainer';
 import DefaultStyles from '../constants/default-styles';
 import MainButton from '../components/MainButton';
 
-// Improve game logic so it won't guess the same number multiple times
-// Low is inclusive at the moment
 const generateRandomBetween = (min, max, exclude) => {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -65,13 +63,7 @@ const GameScreen = props => {
             currentLow.current = currentGuess + 1;
         }
         let nextNumber = generateRandomBetween(currentLow.current, currentHigh.current, currentGuess)
-        
-        // if (nextNumber === currentLow.current) {
-        //     nextNumber++;
-        // } else if (nextNumber === currentHigh.current) {
-        //     nextNumber--;
-        // }
-
+      
         setCurrentGuess(nextNumber);
         setPastGuesses(currentPastGuesses => [nextNumber.toString() , ...currentPastGuesses]);
     };
