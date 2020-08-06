@@ -1,14 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-    View, 
-    Text, 
-    StyleSheet, 
-    Alert, 
-    ScrollView, 
+import {
+    View,
+    Text,
+    StyleSheet,
+    Alert,
+    ScrollView,
     FlatList,
     Dimensions
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 import BodyText from '../components/BodyText';
 import Card from '../components/Card';
@@ -35,25 +36,41 @@ const renderListItem = (listLength, itemData) => (
 )
 
 const GameScreen = props => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    
     const initialGuess = generateRandomBetween(1, 100, props.userChoice);
     const [currentGuess, setCurrentGuess] = useState(initialGuess);
     const [pastGuesses, setPastGuesses] = useState([initialGuess.toString()]);
+    const [ availableDeviceWidth, setAvailableDeviceWidth ] = useState(Dimensions.get('window').width);
+    const [ availableDeviceHeight, setAvailableDeviceHeight ] = useState(Dimensions.get('window').height);
     const currentLow = useRef(1);
     const currentHigh = useRef(100);
 
     const { userChoice, onGameOver } = props;
+
+    useEffect(() => {
+        const updateLayout = () => {
+            setAvailableDeviceHeight(Dimensions.get('window').height);
+            setAvailableDeviceWidth(Dimensions.get('window').width);
+        };
+
+        Dimensions.addEventListener('change', updateLayout);
+        return () => {
+            Dimensions.removeEventListener('change', updateLayout);
+        };
+    })
     
     useEffect(() => {
         if (currentGuess === props.userChoice) {
             onGameOver(pastGuesses.length);
         }
     }, [currentGuess, userChoice, onGameOver]);
-    
+
     const nextGuessHandler = direction => {
         console.log(pastGuesses);
         if ((direction === 'lower' && currentGuess < props.userChoice) || (direction === 'greater' && currentGuess > props.userChoice)) {
             Alert.alert("Don't Lie!", "This is wrong", [
-                {text: 'Sorry!', style: 'cancel'}
+                { text: 'Sorry!', style: 'cancel' }
             ]);
             return;
         }
@@ -63,18 +80,43 @@ const GameScreen = props => {
             currentLow.current = currentGuess + 1;
         }
         let nextNumber = generateRandomBetween(currentLow.current, currentHigh.current, currentGuess)
-      
+
         setCurrentGuess(nextNumber);
-        setPastGuesses(currentPastGuesses => [nextNumber.toString() , ...currentPastGuesses]);
+        setPastGuesses(currentPastGuesses => [nextNumber.toString(), ...currentPastGuesses]);
     };
-    
+
+    if (availableDeviceHeight < 500) {
+        return (
+            <View style={styles.screen}>
+                <Text style={DefaultStyles.bodyText}>Opponent's Guess</Text>
+                <View style={styles.controls}>
+                    <MainButton onPress={nextGuessHandler.bind(this, 'lower')}>
+                        <Ionicons size={24} color="white" name="md-remove" />
+                    </MainButton>
+                    <NumberContainer>{currentGuess}</NumberContainer>
+                    <MainButton onPress={nextGuessHandler.bind(this, 'greater')}>
+                        <Ionicons size={24} color="white" name="md-add" />
+                    </MainButton>
+                </View>
+                <View style={styles.listContainer}>
+                    <FlatList
+                        data={pastGuesses}
+                        renderItem={renderListItem.bind(this, pastGuesses.length)}
+                        keyExtractor={item => item}
+                        contentContainerStyle={styles.list}
+                    />
+                </View>
+            </View>
+        )
+    }
+
     return (
         <View style={styles.screen}>
             <Text style={DefaultStyles.bodyText}>Opponent's Guess</Text>
             <NumberContainer>{currentGuess}</NumberContainer>
             <Card style={styles.buttonContainer}>
                 <MainButton onPress={nextGuessHandler.bind(this, 'lower')}>
-                    <Ionicons size={24} color="white" name="md-remove"/>
+                    <Ionicons size={24} color="white" name="md-remove" />
                 </MainButton>
                 <MainButton onPress={nextGuessHandler.bind(this, 'greater')}>
                     <Ionicons size={24} color="white" name="md-add" />
@@ -84,16 +126,16 @@ const GameScreen = props => {
                 {/* <ScrollView contentContainerStyle={styles.list}>
                     {pastGuesses.map((guess, index) => renderListItem(guess, pastGuesses.length - index))}    
                 </ScrollView> */}
-                <FlatList 
-                data={pastGuesses}
-                renderItem={renderListItem.bind(this, pastGuesses.length)}
-                keyExtractor={item => item}  
-                contentContainerStyle={styles.list}
+                <FlatList
+                    data={pastGuesses}
+                    renderItem={renderListItem.bind(this, pastGuesses.length)}
+                    keyExtractor={item => item}
+                    contentContainerStyle={styles.list}
                 />
             </View>
         </View>
     )
-    
+
 };
 
 const styles = StyleSheet.create({
@@ -108,6 +150,10 @@ const styles = StyleSheet.create({
         marginTop: Dimensions.get('window').height > 600 ? 20 : 5,
         width: 400,
         maxWidth: '90%'
+    },
+    controls: {
+        flexDirection: 'row',
+        justifyContent: 'space-around'
     },
     listContainer: {
         width: Dimensions.get('window').width > 350 ? '60%' : '80%',
