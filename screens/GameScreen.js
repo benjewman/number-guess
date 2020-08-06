@@ -35,9 +35,7 @@ const renderListItem = (listLength, itemData) => (
     </View>
 )
 
-const GameScreen = props => {
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-    
+const GameScreen = props => {    
     const initialGuess = generateRandomBetween(1, 100, props.userChoice);
     const [currentGuess, setCurrentGuess] = useState(initialGuess);
     const [pastGuesses, setPastGuesses] = useState([initialGuess.toString()]);
