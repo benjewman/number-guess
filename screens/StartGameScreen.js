@@ -25,18 +25,18 @@ const StartGameScreen = props => {
     const [selectedNumber, setSelectedNumber] = useState();
     const [buttonWidth, setButtonWidth] = useState(Dimensions.get('window').width / 4);
 
-    
+
     useEffect(() => {
         const updateLayout = () => {
             setButtonWidth(Dimensions.get('window').width / 4);
         }
-        
+
         Dimensions.addEventListener('change', updateLayout);
         return () => {
             Dimensions.removeEventListener('change', updateLayout);
         }
     });
-    
+
     const numberInputHandler = inputText => {
         setEnteredValue(inputText.replace(/[^0-9]/g, ''));
     };
@@ -70,7 +70,7 @@ const StartGameScreen = props => {
                 <NumberContainer>{selectedNumber}</NumberContainer>
                 <MainButton onPress={() => props.onStartGame(selectedNumber)}>
                     START GAME
-                    </MainButton>
+                </MainButton>
             </Card>
         )
     }
@@ -98,10 +98,10 @@ const StartGameScreen = props => {
                                 value={enteredValue}
                             />
                             <View style={styles.buttonContainer}>
-                                <View style={{width: buttonWidth}}>
+                                <View style={{ width: buttonWidth }}>
                                     <Button title="Reset" onPress={resetInputHandler} color={Colors.accent} />
                                 </View>
-                                <View style={{width: buttonWidth}}>
+                                <View style={{ width: buttonWidth }}>
                                     <Button title="Confirm" onPress={confirmInputHandler} color={Colors.primary} />
                                 </View>
                             </View>
